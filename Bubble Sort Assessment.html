@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Bubble Sort Assessment</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: rgba(30, 41, 59, 0.62);
+        --line: rgba(148, 163, 184, 0.22);
+        --tx: #e2e8f0;
+        --mut: #94a3b8;
+        --acc: #a78bfa;
+        --ok: #34d399;
+        --bad: #fb7185;
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      html {
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(
+            900px 500px at 15% -10%,
+            #312e81,
+            transparent 60%
+          ),
+          var(--bg);
+        color: var(--tx);
+        font: 16px/1.5 "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+        display: flex;
+        justify-content: center;
+      }
+      #app {
+        width: 100%;
+        max-width: 720px;
+        padding: 20px 16px 32px;
+      }
+      .screen {
+        display: none;
+      }
+      .screen.on {
+        display: block;
+      }
+      .card {
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 24px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      }
+      h1 {
+        font-size: clamp(1.6rem, 5vw, 2.2rem);
+        line-height: 1.15;
+        margin: 0 0 8px;
+        letter-spacing: -0.02em;
+      }
+      h3 {
+        margin: 16px 0 6px;
+        font-size: 1rem;
+      }
+      p {
+        color: var(--mut);
+        margin: 0 0 14px;
+      }
+      ul {
+        color: var(--mut);
+        padding-left: 20px;
+        margin: 0;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        border: 0;
+        border-radius: 14px;
+        padding: 12px 22px;
+        color: #fff;
+        background: linear-gradient(135deg, #7c3aed, #4f46e5);
+        font-weight: 600;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+          box-shadow 0.2s;
+        touch-action: manipulation;
+      }
+      button:hover {
+        transform: scale(1.03);
+      }
+      button:active {
+        transform: scale(0.96);
+      }
+      button.ghost {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--tx);
+      }
+      button:focus-visible {
+        outline: 2px solid var(--acc);
+        outline-offset: 3px;
+      }
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .top button {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+      }
+      .hm {
+        display: grid;
+        gap: 14px;
+        margin-top: 18px;
+      }
+      .mode {
+        text-align: left;
+        background: rgba(15, 23, 42, 0.55);
+        border: 1px solid var(--line);
+        padding: 18px;
+        display: block;
+        width: 100%;
+      }
+      .mode b {
+        font-size: 1.3rem;
+        display: block;
+      }
+      .mode small {
+        display: block;
+        color: var(--mut);
+        font-weight: 400;
+        margin: 2px 0 12px;
+      }
+      .mode span {
+        font-size: 0.85rem;
+        color: var(--ok);
+      }
+      .lv {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+        margin: 16px 0;
+      }
+      .lv button {
+        text-align: left;
+        background: rgba(15, 23, 42, 0.55);
+        border: 1px solid var(--line);
+        padding: 12px 14px;
+        line-height: 1.3;
+      }
+      .lv b {
+        font-size: 1.1rem;
+        display: block;
+      }
+      .lv small {
+        color: var(--mut);
+        font-weight: 400;
+        display: block;
+      }
+      .lv .bs {
+        color: var(--ok);
+        font-size: 0.8rem;
+      }
+      .st {
+        color: #fbbf24;
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+      }
+      .hud {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+        color: var(--mut);
+        font-size: 0.92rem;
+      }
+      .hud b {
+        color: var(--tx);
+        font-variant-numeric: tabular-nums;
+      }
+      .bar {
+        height: 8px;
+        border-radius: 99px;
+        background: rgba(148, 163, 184, 0.18);
+        overflow: hidden;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, var(--ok), var(--acc));
+        transform-origin: left;
+      }
+      .bar.low i {
+        background: var(--bad);
+      }
+      .bar.q i {
+        background: var(--acc);
+        transition: width 0.3s;
+      }
+      .hm .bar i {
+        width: 0;
+        background: var(--acc);
+        transition: width 0.4s;
+      }
+      .rule {
+        padding: 14px 18px;
+        border-radius: 16px;
+        background: rgba(124, 58, 237, 0.16);
+        border: 1px solid rgba(167, 139, 250, 0.4);
+        font-weight: 600;
+        margin: 14px 0;
+      }
+      .pool {
+        min-height: 170px;
+        display: flex;
+        gap: 22px;
+        justify-content: center;
+        align-items: center;
+        padding: 14px 8px;
+      }
+      .bub {
+        width: 92px;
+        height: 92px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        border: 0;
+        padding: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #fff;
+        background: radial-gradient(circle at 30% 25%, #c4b5fd, #6d28d9 70%);
+        box-shadow: inset 0 -6px 14px rgba(0, 0, 0, 0.25),
+          0 8px 20px rgba(76, 29, 149, 0.45);
+        animation: fl 3.2s ease-in-out var(--d) infinite;
+      }
+      .bub.in {
+        animation: none;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+      .bub.sm {
+        font-size: 0.98rem;
+        white-space: nowrap;
+      }
+      .fr {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 1.1;
+      }
+      .fr i {
+        font-style: normal;
+        padding: 0 4px;
+      }
+      .fr i:first-child {
+        border-bottom: 2px solid currentColor;
+      }
+      @keyframes fl {
+        0%,
+        100% {
+          transform: translateY(0) scale(1);
+        }
+        50% {
+          transform: translateY(-9px) scale(1.04);
+        }
+      }
+      .bub:hover {
+        transform: scale(1.1);
+      }
+      .bub:active {
+        transform: scale(0.92);
+      }
+      .dock {
+        display: flex;
+        justify-content: center;
+        gap: 18px;
+        padding: 18px 10px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(15, 23, 42, 0.55);
+      }
+      .slot {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 2px dashed rgba(148, 163, 184, 0.4);
+        position: relative;
+      }
+      .slot.full {
+        border-style: solid;
+        border-color: transparent;
+      }
+      .slot em {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-style: normal;
+        font-size: 0.72rem;
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: 99px;
+        padding: 0 7px;
+        color: var(--mut);
+        z-index: 2;
+      }
+      .dock.ok {
+        animation: glow 0.6s;
+      }
+      .dock.bad {
+        animation: shake 0.5s;
+      }
+      @keyframes glow {
+        40% {
+          box-shadow: 0 0 36px 6px rgba(52, 211, 153, 0.7);
+          border-color: var(--ok);
+        }
+      }
+      @keyframes shake {
+        20% {
+          transform: translateX(-9px);
+        }
+        40% {
+          transform: translateX(8px);
+        }
+        60% {
+          transform: translateX(-6px);
+        }
+        80% {
+          transform: translateX(4px);
+        }
+      }
+      #fb {
+        text-align: center;
+        min-height: 26px;
+        margin-top: 12px;
+        font-weight: 600;
+      }
+      .combo {
+        text-align: center;
+        height: 24px;
+        font-weight: 700;
+        color: #fbbf24;
+      }
+      .foot {
+        margin-top: 14px;
+      }
+      .foot .lab {
+        display: flex;
+        justify-content: space-between;
+        color: var(--mut);
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+      }
+      .foot .row {
+        margin-top: 14px;
+        justify-content: center;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin: 16px 0;
+      }
+      .kpi {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        background: rgba(15, 23, 42, 0.45);
+      }
+      .kpi b {
+        display: block;
+        font-size: 1.6rem;
+      }
+      .kpi span {
+        color: var(--mut);
+        font-size: 0.85rem;
+      }
+      #cf {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 9;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+      @media (max-width: 480px) {
+        .bub {
+          width: 78px;
+          height: 78px;
+        }
+        .slot {
+          width: 68px;
+          height: 68px;
+        }
+        .pool,
+        .dock {
+          gap: 12px;
+        }
+        .card {
+          padding: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <section id="s-home" class="screen on">
+        <div class="card">
+          <div class="top">
+            <span></span><button class="ghost" id="mu">Sound: on</button>
+          </div>
+          <h1>Bubble sort assessment</h1>
+          <p>Learn each topic in Practice, then test yourself in Mock.</p>
+          <div class="hm">
+            <button class="mode" id="gP">
+              <b>Practice</b
+              ><small
+                >11 levels, one topic each, with rules and tricks. Leave any
+                time.</small
+              >
+              <div class="bar"><i id="hpb"></i></div>
+              <span id="hpt"></span>
+            </button>
+            <button class="mode" id="gM">
+              <b>Mock</b
+              ><small
+                >10 levels of mixed topics, harder each level. No direct
+                exit.</small
+              >
+              <div class="bar"><i id="hmb"></i></div>
+              <span id="hmt"></span>
+            </button>
+          </div>
+        </div>
+      </section>
+      <section id="s-sec" class="screen">
+        <div class="card">
+          <div class="top">
+            <button class="ghost" data-go="home">Back</button>
+          </div>
+          <h1 id="sh"></h1>
+          <p id="sp"></p>
+          <div class="lv" id="lv"></div>
+        </div>
+      </section>
+      <section id="s-info" class="screen">
+        <div class="card">
+          <div class="top"><button class="ghost" id="ib">Back</button></div>
+          <h1 id="it"></h1>
+          <h3>Topic</h3>
+          <p id="itp"></p>
+          <h3>Important rules</h3>
+          <ul id="ir"></ul>
+          <h3 id="ikh">Tricks</h3>
+          <ul id="ik"></ul>
+          <div class="row" style="margin-top: 20px">
+            <button id="is">Start level</button>
+          </div>
+        </div>
+      </section>
+      <section id="s-game" class="screen">
+        <div class="card">
+          <div class="hud">
+            <span id="ln"></span><span>Question <b id="qn"></b>/25</span
+            ><span>Score <b id="sc"></b></span><span><b id="tl"></b>s</span>
+          </div>
+          <div class="bar" id="bar"><i id="barf"></i></div>
+          <div class="rule" id="rule"></div>
+          <div class="pool" id="pool"></div>
+          <div class="dock" id="dock"></div>
+          <div id="fb" aria-live="polite"></div>
+          <div class="combo" id="cb"></div>
+          <div class="foot">
+            <div class="lab">
+              <span>Level progress</span><span id="qt"></span>
+            </div>
+            <div class="bar q"><i id="qbar" style="width: 0"></i></div>
+            <div class="row"><button class="ghost" id="ex"></button></div>
+            <p style="text-align: center; font-size: 0.8rem; margin: 10px 0 0">
+              Keys 1, 2, 3 tap the bubbles from left to right.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section id="s-res" class="screen">
+        <div class="card">
+          <h1 id="rt"></h1>
+          <p id="rs"></p>
+          <div class="kpis" id="kpis"></div>
+          <div class="row">
+            <button id="nxt">Next level</button
+            ><button class="ghost" id="rep">Replay level</button
+            ><button class="ghost" id="bk">Level list</button>
+          </div>
+        </div>
+      </section>
+    </div>
+    <canvas id="cf"></canvas>
+    <script>
+      "use strict";
+      const T = 15,
+        N = 25,
+        $ = (s) => document.querySelector(s),
+        rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+      const show = (id) => {
+        document
+          .querySelectorAll(".screen")
+          .forEach((e) => e.classList.remove("on"));
+        $(id).classList.add("on");
+      };
+      const fr = (n, d) => `<span class="fr"><i>${n}</i><i>${d}</i></span>`;
+      const DIRTXT = ["from highest to lowest", "from lowest to highest"];
+      /* ---- content ---- */
+      const RULES = [
+        {
+          t: "Even numbers first (lowest to highest), then odd numbers (highest to lowest)",
+          g: (v) => v % 2,
+          d: [1, -1],
+        },
+        {
+          t: "Odd numbers first (lowest to highest), then even numbers (highest to lowest)",
+          g: (v) => 1 - (v % 2),
+          d: [1, -1],
+        },
+        {
+          t: "Numbers above 50 first (highest to lowest), then the rest (lowest to highest)",
+          g: (v) => (v > 50 ? 0 : 1),
+          d: [-1, 1],
+        },
+      ];
+      const PR = [
+        {
+          n: "Small integers",
+          pool: ["i"],
+          dir: 1,
+          topic: "Whole numbers from 1 to 20, lowest to highest.",
+          rules: [
+            "Always read the banner: this level is lowest to highest.",
+            "Tap the smallest bubble first, then the next smallest.",
+          ],
+          tips: [
+            "Find the smallest, tap it, then compare the remaining two.",
+            "Compare tens first: 9 is smaller than 12 even though 9 looks 'bigger' than 1 and 2.",
+          ],
+        },
+        {
+          n: "Small integers, reversed",
+          pool: ["i"],
+          dir: -1,
+          topic: "Whole numbers, highest to lowest.",
+          rules: [
+            "This level is highest to lowest.",
+            "Tap the largest bubble first.",
+          ],
+          tips: [
+            "Spot the largest first, then compare the other two.",
+            "Two-digit numbers always beat one-digit numbers.",
+          ],
+        },
+        {
+          n: "Integers and sums",
+          pool: ["i", "e"],
+          dir: 1,
+          topic:
+            "Whole numbers up to about 36, with simple sums and differences like 14 + 7.",
+          rules: [
+            "Solve every expression before you tap anything.",
+            "Sort by the answer, not the numbers shown.",
+          ],
+          tips: [
+            "Round, then adjust: 19 + 8 is 20 + 8 − 1 = 27.",
+            "Do the easiest bubble first to save time.",
+          ],
+        },
+        {
+          n: "Expressions",
+          pool: ["e"],
+          dir: -1,
+          topic: "Sums, differences and times tables, highest to lowest.",
+          rules: [
+            "Multiplication usually gives the largest results.",
+            "Highest to lowest: tap the biggest answer first.",
+          ],
+          tips: [
+            "Estimate: 6 × 9 is near 54, far above 25 + 4.",
+            "Know your tables up to 12 × 12.",
+          ],
+        },
+        {
+          n: "Decimals",
+          pool: ["d"],
+          dir: 1,
+          topic: "Decimals with one decimal place, lowest to highest.",
+          rules: [
+            "Compare the whole part first, then the tenths.",
+            "More digits does not mean a bigger number.",
+          ],
+          tips: [
+            "Pad with zeros: 0.5 is 0.50, so it beats 0.45.",
+            "3.2 is smaller than 3.9 but bigger than 2.99.",
+          ],
+        },
+        {
+          n: "Fractions",
+          pool: ["f"],
+          dir: -1,
+          topic: "Fractions, some greater than 1, highest to lowest.",
+          rules: [
+            "Same denominator: the larger numerator wins.",
+            "Same numerator: the smaller denominator is larger.",
+          ],
+          tips: [
+            "Compare each fraction to 1/2 and to 1.",
+            "If the numerator is bigger than the denominator, the value is more than 1.",
+          ],
+        },
+        {
+          n: "Mixed practice",
+          pool: ["i", "e", "d"],
+          dir: 1,
+          topic: "Integers, expressions and decimals mixed together.",
+          rules: [
+            "Turn every bubble into one plain number first.",
+            "Banner direction is fixed for this level.",
+          ],
+          tips: [
+            "Solve expressions first, then compare as decimals.",
+            "Check the decimal point before the digits.",
+          ],
+        },
+        {
+          n: "Decimals and fractions",
+          pool: ["d", "f"],
+          dir: -1,
+          topic: "Comparing decimals against fractions, highest to lowest.",
+          rules: [
+            "Convert fractions to decimals before comparing.",
+            "Memorise common conversions.",
+          ],
+          tips: [
+            "1/2 = 0.5, 1/4 = 0.25, 3/4 = 0.75, 1/5 = 0.2, 1/8 = 0.125.",
+            "Divide numerator by denominator for any other fraction.",
+          ],
+        },
+        {
+          n: "Close values",
+          pool: ["e", "d", "f"],
+          dir: 1,
+          topic: "All formats with values that sit close together.",
+          rules: [
+            "Estimates are not enough. Calculate exactly.",
+            "Close values are where careless taps happen.",
+          ],
+          tips: [
+            "Use two decimal places for every bubble.",
+            "Use a common denominator when two fractions look equal.",
+          ],
+        },
+        {
+          n: "Sorting rules",
+          pool: ["r"],
+          dir: 1,
+          ri: 0,
+          topic:
+            "Rule-based sorting. This level: even numbers first (lowest to highest), then odd numbers (highest to lowest).",
+          rules: [
+            "Split the bubbles into groups before ordering.",
+            "Order inside each group, then join the groups.",
+          ],
+          tips: [
+            "Even numbers end in 0, 2, 4, 6 or 8.",
+            "If all three are one parity, only that group's order applies.",
+          ],
+        },
+        {
+          n: "Expert",
+          pool: ["e", "d", "f", "m"],
+          dir: -1,
+          topic: "Every value format with tight gaps, highest to lowest.",
+          rules: [
+            "Read, convert, compare, then tap.",
+            "One wrong tap ends the question.",
+          ],
+          tips: [
+            "Convert everything to decimals as your default.",
+            "Do not tap until you know the full order.",
+          ],
+        },
+      ];
+      const MDIFF = [
+        "Beginner",
+        "Easy",
+        "Easy plus",
+        "Moderate",
+        "Moderate plus",
+        "Challenging",
+        "Hard",
+        "Very hard, mixed directions",
+        "Expert, mixed directions",
+        "Elite, mixed directions",
+      ];
+      /* ---- storage & audio ---- */
+      let DB = { p: {}, m: {} };
+      try {
+        DB = Object.assign(DB, JSON.parse(localStorage.getItem("bs2") || "{}"));
+      } catch (e) {}
+      const save = () => {
+        try {
+          localStorage.setItem("bs2", JSON.stringify(DB));
+        } catch (e) {}
+      };
+      const LV = { p: [0, 10], m: [1, 10] };
+      const pct = (m) => {
+        let a = 0;
+        Object.values(DB[m]).forEach((r) => (a += Math.min(N, r.att || 0)));
+        return Math.round((a / ((LV[m][1] - LV[m][0] + 1) * N)) * 100);
+      };
+      let snd = true,
+        AC;
+      function beep(f, d, t) {
+        if (!snd) return;
+        try {
+          AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+          const o = AC.createOscillator(),
+            g = AC.createGain();
+          o.type = t || "sine";
+          o.frequency.value = f;
+          g.gain.value = 0.08;
+          o.connect(g);
+          g.connect(AC.destination);
+          o.start();
+          g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + d);
+          o.stop(AC.currentTime + d);
+        } catch (e) {}
+      }
+      /* ---- generator ---- */
+      function makeItem(k, L) {
+        if (k === "m") k = ["i", "d", "f"][rnd(0, 2)];
+        if (k === "i" || k === "r") {
+          const v = rnd(1, k === "r" ? 99 : 20 + L * 8);
+          return { label: "" + v, val: v };
+        }
+        if (k === "d") {
+          const v =
+            L >= 7
+              ? rnd(10, (5 + L) * 100) / 100
+              : rnd(1, (5 + L * 3) * 10) / 10;
+          return { label: v + "", val: v };
+        }
+        if (k === "f") {
+          const d = rnd(2, Math.min(12, 4 + L)),
+            n = rnd(1, 2 * d - 1);
+          return { label: fr(n, d), val: n / d };
+        }
+        const t = rnd(0, 2),
+          b = rnd(2, 12),
+          a = rnd(6, 20 + L * 3);
+        if (t === 0) return { label: `${a} + ${b}`, val: a + b, sm: 1 };
+        if (t === 1) return { label: `${a + b} − ${b}`, val: a, sm: 1 };
+        const x = rnd(2, 6 + Math.floor(L / 2));
+        return { label: `${x} × ${b}`, val: x * b, sm: 1 };
+      }
+      function gen(k, L, p, dir, ri) {
+        const gap = ["i", "e", "r"].includes(k)
+          ? Math.max(1, Math.round(9 - p * 8))
+          : k === "d"
+          ? L >= 7
+            ? 0.05
+            : 0.1
+          : 0.05;
+        let items;
+        for (let t = 0; t < 200; t++) {
+          items = [0, 1, 2].map((i) => ({ id: i, ...makeItem(k, L) }));
+          const v = items.map((x) => x.val);
+          if (
+            Math.abs(v[0] - v[1]) >= gap &&
+            Math.abs(v[0] - v[2]) >= gap &&
+            Math.abs(v[1] - v[2]) >= gap
+          )
+            break;
+        }
+        let cmp, rule;
+        if (k === "r") {
+          const r = RULES[ri != null ? ri : rnd(0, 2)];
+          rule = r.t;
+          cmp = (a, b) => {
+            const x = r.g(a.val),
+              y = r.g(b.val);
+            return x !== y ? x - y : r.d[x] * (a.val - b.val);
+          };
+        } else {
+          cmp = dir > 0 ? (a, b) => a.val - b.val : (a, b) => b.val - a.val;
+          rule =
+            (k === "e"
+              ? "Solve each expression, then sort "
+              : k === "f"
+              ? "Compare the fractions and sort "
+              : k === "d"
+              ? "Compare the decimals and sort "
+              : k === "m"
+              ? "Compare the values and sort "
+              : "Sort ") + DIRTXT[dir > 0 ? 1 : 0];
+        }
+        return { items, rule, sol: [...items].sort(cmp).map((i) => i.id) };
+      }
+      function makeQ() {
+        if (S.m === "p") {
+          const c = PR[S.L],
+            pl = c.pool,
+            k =
+              pl[
+                rnd(
+                  0,
+                  Math.min(pl.length - 1, Math.floor((S.q * pl.length) / N))
+                )
+              ];
+          return gen(k, S.L, (S.L * N + S.q) / (11 * N), c.dir, c.ri);
+        }
+        const p = ((S.L - 1) * N + S.q) / (10 * N),
+          ks = ["i"];
+        if (p > 0.05) ks.push("e");
+        if (p > 0.12) ks.push("d");
+        if (p > 0.2) ks.push("f");
+        if (p > 0.4) ks.push("m");
+        if (p > 0.5) ks.push("r");
+        const dir =
+          S.L <= 7 ? (S.L % 2 ? 1 : -1) : Math.random() < 0.5 ? 1 : -1;
+        return gen(ks[rnd(0, ks.length - 1)], Math.round(p * 10), p, dir);
+      }
+      /* ---- navigation ---- */
+      let S = {},
+        MODE = "p";
+      document.querySelectorAll("[data-go]").forEach((b) => (b.onclick = home));
+      function home() {
+        ["p", "m"].forEach((m) => {
+          $("#h" + m + "b").style.width = pct(m) + "%";
+          $("#h" + m + "t").textContent = pct(m) + "% complete";
+        });
+        show("#s-home");
+      }
+      function sec(m) {
+        MODE = m;
+        const [a, b] = LV[m];
+        $("#sh").textContent = m === "p" ? "Practice" : "Mock";
+        $("#sp").textContent =
+          m === "p"
+            ? "Open a level to read its rules and tricks, then practise. You can leave any time."
+            : "Mixed questions from every practice topic. You cannot leave a level directly: finish it or use Skip all remaining.";
+        $("#lv").innerHTML = "";
+        for (let i = a; i <= b; i++) {
+          const r = DB[m][i] || {},
+            x = document.createElement("button");
+          x.innerHTML = `<b>Level ${i}</b><small>${
+            m === "p" ? PR[i].n : MDIFF[i - 1]
+          }</small>${
+            r.att
+              ? `<span class="bs">${Math.min(N, r.att)}/25 done · best ${
+                  r.best
+                }</span>`
+              : ""
+          }${r.st ? `<span class="st">${"★".repeat(r.st)}</span>` : ""}`;
+          x.onclick = () => info(i);
+          $("#lv").appendChild(x);
+        }
+        show("#s-sec");
+      }
+      function info(L) {
+        const li = (a) => a.map((t) => `<li>${t}</li>`).join("");
+        S.pend = L;
+        $("#ikh").style.display = $("#ik").style.display =
+          MODE === "p" ? "" : "none";
+        $("#it").textContent =
+          MODE === "p"
+            ? `Level ${L}: ${PR[L].n}`
+            : `Mock level ${L}: ${MDIFF[L - 1]}`;
+        if (MODE === "p") {
+          const c = PR[L];
+          $("#itp").textContent = c.topic;
+          $("#ir").innerHTML = li(c.rules);
+          $("#ik").innerHTML = li(c.tips);
+        } else {
+          $("#itp").textContent =
+            "Mixed integers, expressions, decimals, fractions and sorting rules. Questions get harder from 1 to 25.";
+          $("#ir").innerHTML = li([
+            L <= 7
+              ? "Direction is fixed this level: " +
+                (L % 2 ? "lowest to highest" : "highest to lowest") +
+                "."
+              : "Direction can switch every question. Read the banner each time.",
+            "You cannot leave directly. Use Skip all remaining to finish; unanswered questions count as skipped.",
+            "15 seconds per question. One wrong tap marks it incorrect.",
+          ]);
+          $("#ik").innerHTML = "";
+        }
+        $("#is").textContent =
+          MODE === "p" ? "Start practice" : "Start mock level";
+        show("#s-info");
+      }
+      $("#gP").onclick = () => sec("p");
+      $("#gM").onclick = () => sec("m");
+      $("#ib").onclick = () => sec(MODE);
+      $("#is").onclick = () => startLevel(S.pend);
+      /* ---- game ---- */
+      function startLevel(L) {
+        S = {
+          m: MODE,
+          L,
+          q: 0,
+          score: 0,
+          ok: 0,
+          to: 0,
+          wr: 0,
+          lat: [],
+          hes: [],
+          raf: 0,
+          busy: true,
+          combo: 0,
+          mx: 0,
+          els: {},
+          arm: 0,
+        };
+        $("#ln").innerHTML =
+          (MODE === "p" ? "Practice " : "Mock ") + "level <b>" + L + "</b>";
+        $("#ex").textContent =
+          MODE === "p" ? "Exit level" : "Skip all remaining";
+        show("#s-game");
+        nextQ();
+      }
+      const mult = () =>
+        S.combo >= 10 ? 4 : S.combo >= 6 ? 3 : S.combo >= 3 ? 2 : 1;
+      function nextQ() {
+        if (S.q >= N) return results();
+        const Q = makeQ();
+        Object.assign(S, {
+          Q,
+          placed: [],
+          busy: false,
+          first: null,
+          els: {},
+          arm: 0,
+        });
+        $("#ex").textContent =
+          S.m === "p" ? "Exit level" : "Skip all remaining";
+        $("#qn").textContent = S.q + 1;
+        $("#sc").textContent = S.score;
+        $("#qbar").style.width = (S.q / N) * 100 + "%";
+        $("#qt").textContent = S.q + " of " + N + " answered";
+        $("#rule").textContent = Q.rule;
+        $("#fb").textContent = "";
+        $("#cb").textContent =
+          S.combo >= 2
+            ? `Streak ${S.combo}` + (mult() > 1 ? ` · x${mult()} points` : "")
+            : "";
+        const dock = $("#dock"),
+          pool = $("#pool");
+        dock.className = "dock";
+        dock.innerHTML = "";
+        pool.innerHTML = "";
+        for (let i = 0; i < 3; i++) {
+          const s = document.createElement("div");
+          s.className = "slot";
+          s.innerHTML = `<em>${i + 1}</em>`;
+          dock.appendChild(s);
+        }
+        Q.items.forEach((it) => {
+          const b = document.createElement("button");
+          b.className = "bub" + (it.sm ? " sm" : "");
+          b.innerHTML = it.label;
+          b.style.setProperty("--d", (-Math.random() * 3).toFixed(2) + "s");
+          b.onclick = () => pick(it.id, b);
+          S.els[it.id] = b;
+          pool.appendChild(b);
+        });
+        S.t0 = S.last = performance.now();
+        cancelAnimationFrame(S.raf);
+        tick();
+      }
+      function tick() {
+        const left = Math.max(0, T - (performance.now() - S.t0) / 1000);
+        $("#tl").textContent = left.toFixed(1);
+        $("#barf").style.transform = `scaleX(${left / T})`;
+        $("#bar").classList.toggle("low", left < 5);
+        if (left <= 0 && !S.busy) {
+          S.to++;
+          end(false, "Time is up. ");
+          return;
+        }
+        S.raf = requestAnimationFrame(tick);
+      }
+      function pick(id, el) {
+        if (S.busy) return;
+        const now = performance.now();
+        if (S.first === null) {
+          S.first = now - S.t0;
+          S.hes.push(S.first);
+        }
+        S.lat.push(now - S.last);
+        S.last = now;
+        if (id !== S.Q.sol[S.placed.length]) {
+          el.style.outline = "3px solid var(--bad)";
+          S.wr++;
+          end(false, "Wrong order. ");
+          return;
+        }
+        const slot = $("#dock").children[S.placed.length];
+        S.placed.push(id);
+        el.classList.add("in");
+        slot.classList.add("full");
+        slot.appendChild(el);
+        beep(520 + S.placed.length * 140, 0.12);
+        if (S.placed.length === 3) end(true, "");
+      }
+      function end(good, msg) {
+        S.busy = true;
+        cancelAnimationFrame(S.raf);
+        const left = Math.max(0, T - (performance.now() - S.t0) / 1000),
+          dock = $("#dock");
+        if (good) {
+          S.ok++;
+          S.combo++;
+          S.mx = Math.max(S.mx, S.combo);
+          beep(880, 0.2);
+          const m = mult(),
+            pts = (10 + Math.round((left / T) * 5)) * m;
+          S.score += pts;
+          $("#fb").style.color = "var(--ok)";
+          $("#fb").textContent =
+            "Correct +" + pts + (m > 1 ? " (x" + m + " streak)" : "");
+          dock.classList.add("ok");
+        } else {
+          S.combo = 0;
+          beep(180, 0.35, "sawtooth");
+          $("#fb").style.color = "var(--bad)";
+          $("#fb").innerHTML =
+            msg +
+            "Correct order: " +
+            S.Q.sol.map((i) => S.Q.items[i].label).join(" &nbsp;→&nbsp; ");
+          dock.classList.add("bad");
+        }
+        $("#sc").textContent = S.score;
+        S.q++;
+        $("#qbar").style.width = (S.q / N) * 100 + "%";
+        $("#qt").textContent = S.q + " of " + N + " answered";
+        S.tm = setTimeout(nextQ, good ? 550 : 1700);
+      }
+      function leave() {
+        S.busy = true;
+        cancelAnimationFrame(S.raf);
+        clearTimeout(S.tm);
+      }
+      function exitBtn() {
+        if (S.m === "p") {
+          leave();
+          persist();
+          sec("p");
+          return;
+        }
+        if (!S.arm) {
+          S.arm = 1;
+          $("#ex").textContent = "Tap again to skip the rest";
+          return;
+        }
+        leave();
+        results();
+      }
+      $("#ex").onclick = exitBtn;
+      document.addEventListener("keydown", (e) => {
+        if (!$("#s-game").classList.contains("on")) return;
+        if (e.key === "Escape" && S.m === "p") {
+          exitBtn();
+          return;
+        }
+        if (S.busy) return;
+        const i = +e.key - 1;
+        if (i >= 0 && i < 3 && !S.placed.includes(i)) pick(i, S.els[i]);
+      });
+      $("#mu").onclick = () => {
+        snd = !snd;
+        $("#mu").textContent = "Sound: " + (snd ? "on" : "off");
+      };
+      /* ---- results ---- */
+      function persist(st) {
+        const r = DB[S.m][S.L] || { att: 0, best: 0, st: 0 };
+        r.att = Math.max(r.att, S.q);
+        r.best = Math.max(r.best, S.score);
+        if (st) r.st = Math.max(r.st, st);
+        DB[S.m][S.L] = r;
+        save();
+      }
+      function confetti() {
+        const c = $("#cf"),
+          x = c.getContext("2d");
+        c.width = innerWidth;
+        c.height = innerHeight;
+        const P = Array.from({ length: 120 }, () => ({
+          x: Math.random() * c.width,
+          y: -20,
+          vx: Math.random() * 4 - 2,
+          vy: Math.random() * 4 + 2,
+          c: `hsl(${rnd(0, 360)},80%,60%)`,
+        }));
+        let f = 0;
+        (function a() {
+          x.clearRect(0, 0, c.width, c.height);
+          P.forEach((p) => {
+            p.x += p.vx;
+            p.y += p.vy;
+            x.fillStyle = p.c;
+            x.fillRect(p.x, p.y, 7, 7);
+          });
+          if (++f < 110) requestAnimationFrame(a);
+          else x.clearRect(0, 0, c.width, c.height);
+        })();
+      }
+      function results() {
+        const avg = (a) =>
+            a.length ? a.reduce((x, y) => x + y, 0) / a.length / 1000 : T,
+          acc = Math.round((S.ok / N) * 100),
+          sk = N - S.q,
+          st = acc >= 90 ? 3 : acc >= 70 ? 2 : acc >= 40 ? 1 : 0;
+        persist(st);
+        const rank =
+          acc >= 90 && avg(S.lat) < 2
+            ? "Mastermind"
+            : acc >= 70
+            ? "Strategist"
+            : acc >= 40
+            ? "Analyst"
+            : "Rookie";
+        $("#rt").textContent = `${S.m === "p" ? "Practice" : "Mock"} level ${
+          S.L
+        } complete  ${"★".repeat(st)}${"☆".repeat(3 - st)}`;
+        $("#rs").textContent =
+          `Rank: ${rank}.` +
+          (sk
+            ? ` ${sk} unanswered question${
+                sk > 1 ? "s" : ""
+              } counted as skipped.`
+            : "");
+        $("#kpis").innerHTML = [
+          [S.score, "Score"],
+          [acc + "%", "Accuracy (" + S.ok + "/" + N + ")"],
+          [avg(S.lat).toFixed(2) + "s", "Avg decision latency"],
+          [avg(S.hes).toFixed(2) + "s", "Avg hesitation before first tap"],
+          [S.to, "Timeouts"],
+          [S.wr, "Wrong orders"],
+          [sk, "Skipped"],
+          [S.mx, "Best streak"],
+        ]
+          .map(
+            (k) => `<div class="kpi"><b>${k[0]}</b><span>${k[1]}</span></div>`
+          )
+          .join("");
+        $("#nxt").style.display = S.L < LV[S.m][1] ? "" : "none";
+        show("#s-res");
+        if (acc >= 80) {
+          confetti();
+          [660, 880, 1100].forEach((f, i) =>
+            setTimeout(() => beep(f, 0.25), i * 140)
+          );
+        }
+      }
+      $("#nxt").onclick = () => {
+        MODE = S.m;
+        startLevel(S.L + 1);
+      };
+      $("#rep").onclick = () => {
+        MODE = S.m;
+        startLevel(S.L);
+      };
+      $("#bk").onclick = () => sec(S.m);
+      home();
+    </script>
+  </body>
+</html>
